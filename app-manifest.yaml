@@ -17,7 +17,7 @@ spec:
         app: task1-app
     spec:
       containers:
-      - image: agray998/task1jenk
+      - image: agray998/task1jenk:v{{version}}
         name: task1
         env:
           - name: YOUR_NAME

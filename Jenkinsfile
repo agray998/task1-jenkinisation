@@ -4,27 +4,27 @@ pipeline {
         YOUR_NAME = credentials("YOUR_NAME")
     }
     stages {
-        // stage('Build') {
-        //     steps {
-        //         sh '''
-        //         docker build -t agray998/task1jenk .
-        //         '''
-        //     }
+        stage('Build') {
+            steps {
+                sh '''
+                docker build -t agray998/task1jenk:v${BUILD_NUMBER} .
+                '''
+            }
 
-        // }
-        // stage('Push') {
-        //     steps {
-        //         sh '''
-        //         docker push agray998/task1jenk
-        //         '''
-        //     }
+        }
+        stage('Push') {
+            steps {
+                sh '''
+                docker push agray998/task1jenk:v${BUILD_NUMBER}
+                '''
+            }
 
-        // }
+        }
         stage('Staging Deploy') {
             steps {
                 sh '''
                 kubectl apply -f nginx-config.yaml --namespace staging
-                sed -e 's,{{YOUR_NAME}},'${YOUR_NAME}',g;' app-manifest.yaml | kubectl apply -f - --namespace staging
+                sed -e 's,{{YOUR_NAME}},'${YOUR_NAME}',g;' -e 's,{{version}},'${BUILD_NUMBER}',g;' app-manifest.yaml | kubectl apply -f - --namespace staging
                 kubectl apply -f nginx-pod.yaml --namespace staging
                 '''
             }
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 sh '''
                 kubectl apply -f nginx-config.yaml --namespace prod
-                sed -e 's,{{YOUR_NAME}},'${YOUR_NAME}',g;' app-manifest.yaml | kubectl apply -f - --namespace prod
+                sed -e 's,{{YOUR_NAME}},'${YOUR_NAME}',g;' -e 's,{{version}},'${BUILD_NUMBER}',g;' app-manifest.yaml | kubectl apply -f - --namespace prod
                 kubectl apply -f nginx-pod.yaml --namespace prod
                 sleep 60
                 kubectl get services --namespace prod
