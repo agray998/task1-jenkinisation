@@ -1,1 +1,7 @@
 test-app.py
+nginx/
+*.yaml
+Jenkinsfile
+README.md
+.gitkeep
+Dockerfile
