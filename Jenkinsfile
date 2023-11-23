@@ -4,28 +4,49 @@ pipeline {
         YOUR_NAME = credentials("YOUR_NAME")
     }
     stages {
-        stage('Build') {
+        // stage('Build') {
+        //     steps {
+        //         sh '''
+        //         docker build -t agray998/task1jenk .
+        //         '''
+        //     }
+
+        // }
+        // stage('Push') {
+        //     steps {
+        //         sh '''
+        //         docker push agray998/task1jenk
+        //         '''
+        //     }
+
+        // }
+        stage('Staging Deploy') {
             steps {
                 sh '''
-                docker build -t agray998/task1jenk .
+                kubectl apply -f nginx-config.yaml --namespace staging
+                sed -e 's,{{YOUR_NAME}},'${YOUR_NAME}',g;' app-manifest.yaml | kubectl apply -f - --namespace staging
+                kubectl apply -f nginx-pod.yaml --namespace staging
                 '''
             }
-
         }
-        stage('Push') {
+        stage('Quality Check') {
             steps {
                 sh '''
-                docker push agray998/task1jenk
+                sleep 50
+                export STAGING_IP=\$(kubectl get svc -o json | jq '.items[] | select(.metadata.name == "nginx") | .status.loadBalancer.ingress[0].ip' | tr -d '"')
+                pip3 install requests
+                python3 test-app.py
                 '''
             }
-
         }
-        stage('Deploy') {
+        stage('Prod Deploy') {
             steps {
                 sh '''
-                kubectl apply -f .
+                kubectl apply -f nginx-config.yaml --namespace prod
+                sed -e 's,{{YOUR_NAME}},'${YOUR_NAME}',g;' app-manifest.yaml | kubectl apply -f - --namespace prod
+                kubectl apply -f nginx-pod.yaml --namespace prod
                 sleep 60
-                kubectl get services
+                kubectl get services --namespace prod
                 '''
             }
 
