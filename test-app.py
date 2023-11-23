@@ -12,3 +12,6 @@ class Task1TestCase(unittest.TestCase):
     def test_your_name_displayed(self):
         response = requests.get(f'http://{self.STAGING_IP}')
         self.assertIn(b'{0}'.format(getenv('YOUR_NAME')), response.text)
+    
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
