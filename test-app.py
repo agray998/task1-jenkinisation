@@ -11,7 +11,7 @@ class Task1TestCase(unittest.TestCase):
     
     def test_your_name_displayed(self):
         response = requests.get(url=self.STAGING_URL)
-        self.assertIn(f"{getenv('YOUR_NAME')}", response.text)
+        self.assertIn(getenv('YOUR_NAME'), response.text)
     
 if __name__ == '__main__':
     unittest.main(verbosity=2)
