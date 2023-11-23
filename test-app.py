@@ -3,7 +3,7 @@ import requests
 from os import getenv
 
 class Task1TestCase(unittest.TestCase):
-    STAGING_IP = getenv('STAGING_IP')
+    STAGING_IP = '34.89.76.112'
 
     def test_200_response(self):
         response = requests.get(f'http://{self.STAGING_IP}')
